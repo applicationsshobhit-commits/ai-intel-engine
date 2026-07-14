@@ -24,3 +24,19 @@ not every code change (that's what commit messages are for).
   Phase 1.5 follow-up rather than blocking the first working pipeline.
 - **Result**: `raw_items` deduped by `url` (SQLite `UNIQUE` constraint) — running ingestion
   repeatedly only inserts genuinely new items, verified by running twice (1060 new → 0 new).
+
+## 2026-07-14 — Phase 2: reasoning (summarize + score)
+- **Decision**: Use a local LLM (Ollama, `llama3.2` 3B) instead of the Anthropic API for the
+  scoring pass.
+- **Why**: Anthropic API is pay-as-you-go with no persistent free tier; wanted to build and
+  iterate on the pipeline without a running cost while the prompt/approach is still unstable.
+  Ollama + llama3.2 run fully local and free, ~1s/item.
+- **Trade-off accepted**: llama3.2 is noisy — under-matches some clearly-relevant items and
+  occasionally over-matches. Fine for proving the pipeline shape; `reasoning/llm.py` isolates
+  the model call behind one function (`call_llm`), so swapping in Claude or a bigger model
+  later is a one-file change, not a rewrite.
+- **Schema change**: added `raw_items.reasoned_at` to track which items have been scored
+  (rather than inferring from `mentions` existing, which breaks for zero-match items).
+- **Result**: full loop verified — raw item → LLM scoring → `mentions` row with entity,
+  relevance_score, and a real generated summary. Tested on 18 items, no crashes after
+  hardening the JSON parsing against malformed model output.

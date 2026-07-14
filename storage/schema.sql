@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS raw_items (
     title TEXT NOT NULL,
     content TEXT,
     published_at TEXT,
-    fetched_at TEXT NOT NULL
+    fetched_at TEXT NOT NULL,
+    reasoned_at TEXT
 );
 
 CREATE TABLE IF NOT EXISTS entities (

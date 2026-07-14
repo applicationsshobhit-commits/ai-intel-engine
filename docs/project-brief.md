@@ -42,6 +42,8 @@ end of each meaningful step so the git history mirrors this phase progression.
 
 ## Status
 ✅ Phase 1 done — ingestion (`ingestion/`) + storage (`storage/`) working end to end.
-OpenAI news RSS and Hacker News AI search feed real, deduped items into SQLite
-(`storage/intel.db`). Anthropic deferred to Phase 1.5 (needs headless-browser scraping).
-Next: Phase 2, the reasoning/summarize pass.
+✅ Phase 2 done — reasoning (`reasoning/`) scores new items against tracked entities
+(OpenAI, Anthropic) using a local LLM (Ollama/llama3.2) and writes summaries + relevance
+scores into `mentions`. Model is swappable via `reasoning/llm.py`.
+Anthropic ingestion still deferred to Phase 1.5 (needs headless-browser scraping).
+Next: Phase 3, the UI (feed view).
