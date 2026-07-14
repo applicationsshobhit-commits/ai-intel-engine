@@ -41,4 +41,7 @@ Document decisions in [decisions.md](decisions.md) as they're made, and commit a
 end of each meaningful step so the git history mirrors this phase progression.
 
 ## Status
-Currently: pre-Phase 1, repo and docs scaffolded, no code yet.
+✅ Phase 1 done — ingestion (`ingestion/`) + storage (`storage/`) working end to end.
+OpenAI news RSS and Hacker News AI search feed real, deduped items into SQLite
+(`storage/intel.db`). Anthropic deferred to Phase 1.5 (needs headless-browser scraping).
+Next: Phase 2, the reasoning/summarize pass.
