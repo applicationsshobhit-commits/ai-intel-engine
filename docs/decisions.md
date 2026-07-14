@@ -40,3 +40,17 @@ not every code change (that's what commit messages are for).
 - **Result**: full loop verified — raw item → LLM scoring → `mentions` row with entity,
   relevance_score, and a real generated summary. Tested on 18 items, no crashes after
   hardening the JSON parsing against malformed model output.
+
+## 2026-07-14 — Phase 3: UI (feed + entity timeline)
+- **Decision**: Built with Python's stdlib `http.server` instead of Flask/FastAPI — keeps
+  the zero-install approach consistent with the rest of the project. Two views: `/` (feed,
+  all mentions sorted by relevance then recency) and `/entity?name=X` (timeline for one
+  entity). No JS framework; server-rendered HTML with a small responsive CSS block.
+- **Bug found via manual testing**: llama3.2 was emitting mentions with relevance_score as
+  low as 0.0–0.2 instead of omitting irrelevant entities as the prompt instructed (e.g.
+  OpenAI-only articles showing up under "Anthropic" at 0.0 relevance). Fixed with a
+  `MIN_RELEVANCE = 0.5` filter in `ui/queries.py` rather than re-tuning the prompt again —
+  cheaper fix, and a query-layer threshold is generally useful regardless of model quality.
+- **Verified**: checked in-browser at both desktop and mobile viewport widths; feed renders
+  correctly, entity filter correctly returns empty (not garbage) for Anthropic since we
+  don't ingest Anthropic content yet (Phase 1.5).

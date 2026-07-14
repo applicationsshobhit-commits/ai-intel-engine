@@ -45,5 +45,8 @@ end of each meaningful step so the git history mirrors this phase progression.
 ✅ Phase 2 done — reasoning (`reasoning/`) scores new items against tracked entities
 (OpenAI, Anthropic) using a local LLM (Ollama/llama3.2) and writes summaries + relevance
 scores into `mentions`. Model is swappable via `reasoning/llm.py`.
+✅ Phase 3 done — UI (`ui/`) serves a feed view and per-entity timeline at
+`http://localhost:8765`, run via `python3 ui/app.py`. Verified responsive on mobile.
 Anthropic ingestion still deferred to Phase 1.5 (needs headless-browser scraping).
-Next: Phase 3, the UI (feed view).
+Next: Phase 4, entities + timeline depth (already have a basic timeline; next is
+adding more tracked entities and richer per-entity views).
