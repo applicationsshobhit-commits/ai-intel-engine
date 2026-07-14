@@ -1,24 +1,30 @@
-import json
-import urllib.request
+import subprocess
+import tempfile
+from pathlib import Path
 
-API_URL = "http://localhost:11434/api/generate"
-MODEL = "llama3.2"
+CODEX_BIN = "/Applications/Codex.app/Contents/Resources/codex"
 
 
 def call_llm(prompt: str, max_tokens: int = 1024) -> str:
-    body = json.dumps({
-        "model": MODEL,
-        "prompt": prompt,
-        "stream": False,
-    }).encode()
+    with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as f:
+        out_path = Path(f.name)
 
-    req = urllib.request.Request(
-        API_URL,
-        data=body,
-        headers={"content-type": "application/json"},
-        method="POST",
-    )
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        data = json.load(resp)
-
-    return data["response"]
+    try:
+        result = subprocess.run(
+            [
+                CODEX_BIN, "exec",
+                "--sandbox", "read-only",
+                "--skip-git-repo-check",
+                "--ephemeral",
+                "-o", str(out_path),
+            ],
+            input=prompt,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(f"codex exec failed: {result.stderr[:500]}")
+        return out_path.read_text().strip()
+    finally:
+        out_path.unlink(missing_ok=True)

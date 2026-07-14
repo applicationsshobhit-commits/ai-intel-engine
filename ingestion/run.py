@@ -6,6 +6,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from ingestion.sources import hackernews
 from ingestion.sources.rss import fetch_rss
+from ingestion.sources.google_news import fetch_query
 from storage.db import init_db, get_connection, insert_item
 
 SOURCES = [
@@ -14,6 +15,9 @@ SOURCES = [
     ("theverge.com", partial(fetch_rss, "https://www.theverge.com/rss/index.xml", "theverge.com")),
     ("arstechnica.com", partial(fetch_rss, "https://feeds.arstechnica.com/arstechnica/index", "arstechnica.com")),
     ("hackernews", hackernews.fetch),
+    ("google_news:salesforce", partial(fetch_query, "Salesforce stock OR earnings OR investment", "google_news/salesforce")),
+    ("google_news:crm-competition", partial(fetch_query, "Salesforce competitors OR Microsoft Dynamics OR HubSpot", "google_news/crm-competition")),
+    ("google_news:ai-innovation", partial(fetch_query, "AI innovation enterprise software", "google_news/ai-innovation")),
 ]
 
 

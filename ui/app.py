@@ -50,30 +50,36 @@ PAGE_SHELL = """<!doctype html>
     max-width: 760px; margin: 0 auto; padding: 24px 16px 60px;
     background: var(--bg); color: var(--text); line-height: 1.5;
   }}
-  header {{ margin-bottom: 24px; }}
-  h1 {{ font-size: 1.4rem; font-weight: 600; margin: 0 0 14px; letter-spacing: -0.01em; }}
-  nav {{ display: flex; flex-wrap: wrap; gap: 6px; }}
+  header {{ margin-bottom: 18px; }}
+  h1 {{ font-size: 1.25rem; font-weight: 600; margin: 0 0 10px; letter-spacing: -0.01em; }}
+  nav {{ display: flex; flex-wrap: wrap; gap: 5px; }}
   nav a {{
-    text-decoration: none; font-size: 0.82rem; padding: 5px 12px;
+    text-decoration: none; font-size: 0.78rem; padding: 4px 10px;
     border-radius: 999px; border: 1px solid var(--border); color: var(--text-dim);
     white-space: nowrap;
   }}
   nav a.active {{ background: var(--text); color: var(--bg); border-color: var(--text); }}
-  h2.page-title {{ font-size: 1.1rem; font-weight: 600; margin: 4px 0 18px; }}
+  h2.page-title {{ font-size: 1rem; font-weight: 600; margin: 4px 0 12px; }}
   .card {{
-    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-    padding: 16px 18px; margin-bottom: 10px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 14px; margin-bottom: 6px;
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
   }}
-  .card h3 {{ font-size: 1rem; font-weight: 600; margin: 0 0 8px; line-height: 1.35; }}
+  .card h3 {{ font-size: 0.88rem; font-weight: 600; margin: 0; line-height: 1.3; flex: 1 1 auto; min-width: 200px; }}
   .card h3 a {{ color: var(--text); text-decoration: none; }}
   .card h3 a:hover {{ text-decoration: underline; }}
-  .meta {{ display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-           font-size: 0.75rem; color: var(--text-faint); margin-bottom: 10px; }}
+  .card-body {{ width: 100%; }}
+  .meta {{ display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+           font-size: 0.7rem; color: var(--text-faint); margin-top: 2px; }}
   .tag {{
-    display: inline-block; padding: 2px 9px; border-radius: 999px;
-    font-size: 0.72rem; font-weight: 600;
+    display: inline-block; padding: 1px 8px; border-radius: 999px;
+    font-size: 0.68rem; font-weight: 600; flex-shrink: 0;
   }}
-  .summary {{ font-size: 0.9rem; color: var(--text-dim); }}
+  .summary {{
+    font-size: 0.8rem; color: var(--text-dim); margin-top: 3px;
+    overflow: hidden; text-overflow: ellipsis; display: -webkit-box;
+    -webkit-line-clamp: 1; -webkit-box-orient: vertical;
+  }}
   .empty {{ color: var(--text-faint); padding: 30px 0; text-align: center; font-size: 0.9rem; }}
 </style>
 </head>
@@ -107,14 +113,16 @@ def render_card(item, show_entity=True):
         )
     return f"""<div class="card">
   <h3><a href="{escape(item['url'])}" target="_blank" rel="noopener">{escape(item['title'])}</a></h3>
-  <div class="meta">
-    <span>{escape(item['source'])}</span>
-    <span>·</span>
-    <span>{escape(item.get('published_at') or '')}</span>
-    {f'<span>· {score_pct} relevant</span>' if score_pct else ''}
-    {entity_html}
+  {entity_html}
+  <div class="card-body">
+    <div class="summary">{escape(item.get('summary') or '')}</div>
+    <div class="meta">
+      <span>{escape(item['source'])}</span>
+      <span>·</span>
+      <span>{escape(item.get('published_at') or '')}</span>
+      {f'<span>· {score_pct}</span>' if score_pct else ''}
+    </div>
   </div>
-  <div class="summary">{escape(item.get('summary') or '')}</div>
 </div>"""
 
 

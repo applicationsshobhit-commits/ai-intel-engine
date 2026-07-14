@@ -75,3 +75,41 @@ not every code change (that's what commit messages are for).
 - **Known noise**: local model still produces occasional false-positive entity matches (e.g.
   an OpenAI-only article tagged 80% relevant to Tesla) — same accepted trade-off as Phase 2,
   not a new issue.
+
+## 2026-07-14 — Job-relevant sources (Salesforce/CRM/investment) + succinct UI
+- **Why**: reader works in the Salesforce/enterprise-CRM ecosystem; wanted the feed to surface
+  competitive moves, investment/stock signal, and innovation — not just generic AI news.
+- **New sources**: `ingestion/sources/google_news.py` — a Google News RSS *search* source
+  (`news.google.com/rss/search?q=...`), used for three targeted queries: Salesforce
+  stock/earnings/investment, Salesforce vs. Microsoft Dynamics/HubSpot competition, and AI
+  innovation in enterprise software. Chosen over the official Salesforce blog because it
+  captures third-party/analyst coverage (investment angle), which a company's own blog won't.
+- **Tracked entities**: added Salesforce, HubSpot.
+- **Prompt change**: `reasoning/score.py` now explicitly frames the reader as working in
+  enterprise software/CRM and asks summaries to lead with *why it matters*
+  (competitive threat / investment signal / innovation) instead of restating the headline,
+  capped at 15 words.
+- **UI**: tightened `ui/app.py` for density — title + entity tag on one line, single-line
+  clamped summary, smaller nav pills/fonts. Goal was scanability, not exhaustive detail per card.
+- **Ops note**: launching multiple overlapping background reasoning batches accidentally
+  starved Ollama (3 concurrent processes made a trivial call take 14s instead of ~1s) —
+  lesson: always confirm a prior background reasoning run has actually finished
+  (`ps aux | grep reasoning/run.py`) before starting another.
+
+## 2026-07-14 — Swap reasoning backend: Ollama → Codex
+- **Decision**: `reasoning/llm.py` now shells out to `codex exec` (the CLI bundled inside the
+  Codex.app desktop app at `/Applications/Codex.app/Contents/Resources/codex`) instead of
+  calling local Ollama. Uses the user's existing Codex login — no new API key or billing setup.
+- **Why**: side-by-side test showed materially better output — correct multi-entity
+  discrimination (e.g. one item correctly scored Salesforce 1.0 primary, Microsoft 0.75 and
+  OpenAI 0.7 as competitive context) versus llama3.2's frequent false positives/negatives.
+- **Trade-off**: `codex exec` spins up a full agentic CLI session per call (system prompt,
+  tools, sandbox), not a lightweight completion endpoint. Per-item latency was highly variable
+  in practice — some calls returned in ~7s, one hung well past the 120s subprocess timeout and
+  had to be killed manually. Not suited to large unattended batches yet; fine for the smaller,
+  higher-value batches (like the 37-item Salesforce backlog) run so far.
+- **Implementation**: writes the model's final answer to a temp file via `codex exec -o` rather
+  than parsing stdout text, since stdout also contains session/log noise.
+- **Result**: cleared the Salesforce-focused Google News backlog (53 total Salesforce mentions
+  after this run), with summaries that read as real investment/competitive signal — analyst
+  price targets, institutional stock holdings, competitor moves.

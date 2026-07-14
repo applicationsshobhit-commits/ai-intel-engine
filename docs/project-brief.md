@@ -49,7 +49,14 @@ scores into `mentions`. Model is swappable via `reasoning/llm.py`.
 `http://localhost:8765`, run via `python3 ui/app.py`. Verified responsive on mobile
 and dark mode.
 ✅ Sources diversified — added TechCrunch, The Verge, Ars Technica alongside OpenAI
-and Hacker News, so the feed isn't purely AI-lab content. Tracked entities expanded
-to OpenAI, Anthropic, Google, Microsoft, Meta, Apple, Amazon, Tesla.
+and Hacker News, so the feed isn't purely AI-lab content.
+✅ Job-relevant sources — added targeted Google News queries for Salesforce stock/earnings,
+Salesforce vs. competitor moves, and enterprise AI innovation. Tracked entities now:
+OpenAI, Anthropic, Google, Microsoft, Meta, Apple, Amazon, Tesla, Salesforce, HubSpot.
+Reasoning prompt tuned to lead summaries with competitive/investment/innovation framing.
+✅ Reasoning backend swapped from local Ollama/llama3.2 to Codex (`codex exec`, via the
+user's existing Codex login) — noticeably better entity discrimination and summary quality,
+at the cost of higher per-item latency (variable, ~7-100s+).
+✅ UI tightened for density/scanability — single-line clamped summaries, compact cards.
 Anthropic ingestion still deferred to Phase 1.5 (needs headless-browser scraping).
-Next: Phase 4, entities + timeline depth, or scoring the remaining backlog.
+Next: Phase 4, entities + timeline depth, or scoring the remaining OpenAI backlog.

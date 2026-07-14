@@ -13,6 +13,7 @@ from storage.db import (
 
 TRACKED_ENTITIES = [
     "OpenAI", "Anthropic", "Google", "Microsoft", "Meta", "Apple", "Amazon", "Tesla",
+    "Salesforce", "HubSpot",
 ]
 
 
