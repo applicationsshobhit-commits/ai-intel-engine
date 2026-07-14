@@ -1,12 +1,20 @@
 import sys
+from functools import partial
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from ingestion.sources import openai_rss, hackernews
+from ingestion.sources import hackernews
+from ingestion.sources.rss import fetch_rss
 from storage.db import init_db, get_connection, insert_item
 
-SOURCES = [openai_rss, hackernews]
+SOURCES = [
+    ("openai.com/news", partial(fetch_rss, "https://openai.com/news/rss.xml", "openai.com/news")),
+    ("techcrunch.com", partial(fetch_rss, "https://techcrunch.com/feed/", "techcrunch.com")),
+    ("theverge.com", partial(fetch_rss, "https://www.theverge.com/rss/index.xml", "theverge.com")),
+    ("arstechnica.com", partial(fetch_rss, "https://feeds.arstechnica.com/arstechnica/index", "arstechnica.com")),
+    ("hackernews", hackernews.fetch),
+]
 
 
 def main():
@@ -14,10 +22,9 @@ def main():
     conn = get_connection()
 
     total_new = 0
-    for source in SOURCES:
-        name = source.__name__.split(".")[-1]
+    for name, fetch in SOURCES:
         try:
-            items = source.fetch()
+            items = fetch()
         except Exception as e:
             print(f"[{name}] fetch failed: {e}")
             continue

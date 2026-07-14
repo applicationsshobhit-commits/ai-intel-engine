@@ -48,7 +48,7 @@ def get_entities(conn: sqlite3.Connection) -> list:
 
 def get_unscored_items(conn: sqlite3.Connection) -> list:
     return conn.execute(
-        "SELECT * FROM raw_items WHERE reasoned_at IS NULL"
+        "SELECT * FROM raw_items WHERE reasoned_at IS NULL ORDER BY fetched_at DESC"
     ).fetchall()
 
 

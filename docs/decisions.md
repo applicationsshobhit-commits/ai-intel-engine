@@ -54,3 +54,24 @@ not every code change (that's what commit messages are for).
 - **Verified**: checked in-browser at both desktop and mobile viewport widths; feed renders
   correctly, entity filter correctly returns empty (not garbage) for Anthropic since we
   don't ingest Anthropic content yet (Phase 1.5).
+
+## 2026-07-14 — Diversify sources + UI redesign
+- **Why**: feed was 100% AI-lab content (OpenAI + AI-tagged HN posts) which doesn't match the
+  original goal of tracking "AI and the businesses I follow" broadly.
+- **New sources**: TechCrunch and Ars Technica (RSS 2.0) and The Verge (Atom — different feed
+  format, required `ingestion/sources/rss.py` to handle both `<item>` and `<entry>` shapes).
+  Refactored source registration in `ingestion/run.py` from one-file-per-source to
+  `(name, fetch_fn)` tuples using `functools.partial`, since RSS sources now differ only by
+  URL, not by parsing logic.
+- **Expanded tracked entities**: OpenAI, Anthropic, Google, Microsoft, Meta, Apple, Amazon,
+  Tesla — so the reasoning pass has real non-AI-lab companies to match against.
+- **Bug found**: `get_unscored_items` processed oldest-inserted items first (SQLite default
+  rowid order), so the huge original OpenAI backlog kept crowding out newer, more diverse
+  items in every reasoning batch. Fixed by ordering `ORDER BY fetched_at DESC` — also just a
+  better default going forward (freshest items reasoned first).
+- **UI redesign**: rebuilt `ui/app.py` — pill-style nav with active state, per-entity color
+  tags (borrowed from the CDS palette), relevance shown as a percentage, light/dark mode via
+  `prefers-color-scheme`. Verified in-browser: desktop light, desktop dark, and mobile.
+- **Known noise**: local model still produces occasional false-positive entity matches (e.g.
+  an OpenAI-only article tagged 80% relevant to Tesla) — same accepted trade-off as Phase 2,
+  not a new issue.

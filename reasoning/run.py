@@ -11,7 +11,9 @@ from storage.db import (
     insert_mention, mark_item_reasoned,
 )
 
-TRACKED_ENTITIES = ["OpenAI", "Anthropic"]
+TRACKED_ENTITIES = [
+    "OpenAI", "Anthropic", "Google", "Microsoft", "Meta", "Apple", "Amazon", "Tesla",
+]
 
 
 def main():
