@@ -163,3 +163,47 @@ not every code change (that's what commit messages are for).
 - **Decision**: kept the UI server manual (`python3 ui/app.py`, not auto-started via launchd)
   per user preference — user wants to start it themselves when needed rather than have it
   always running in the background.
+
+## 2026-07-16 — Phase 6b planning: two competing architectures, chosen to build both
+For "reachable from anywhere, Mac can be off," two real options exist. Decided to build
+**both**, starting with Option A, so the user can compare them directly rather than pick
+from a description. Option B (VPS) is planned for a later session, self-built by the user
+on Oracle Cloud, with this project's context carried forward to help at that point.
+
+- **Option A — managed multi-cloud services** (chosen to build first):
+  - **Render** (free web service) serves `ui/app.py` as-is — no framework rewrite, since the
+    UI was already plain stdlib `http.server`.
+  - **Turso** (free SQLite-compatible cloud DB, reached over plain HTTP) replaces the local
+    `storage/intel.db` file — chosen over Postgres/etc. specifically to avoid rewriting the
+    existing schema/queries, and reachable via `urllib` alone, keeping the project's
+    zero-dependency approach intact.
+  - **GitHub Actions** (free scheduled workflow) replaces the `launchd` daily job — serverless
+    by construction, so nothing has to stay running anywhere to trigger it.
+  - **Groq** (free-tier API) replaces Codex for reasoning — forced, not chosen: `codex exec`
+    only works because it's authenticated as the user locally; a cloud runner has no way to
+    authenticate as them, so "Mac can be off" makes Codex categorically unusable here, not
+    just suboptimal. Reasoning quality vs. Codex/llama3.2 is an open question to test.
+  - **Cost**: $0 expected at this scale on all four services. Trade-off is soft limits, not
+    money — Groq rate limits, Render's free tier sleeping after ~15min idle (adds a cold-start
+    delay on the next request), GitHub Actions minutes (generous, not a practical constraint
+    here).
+  - **Rejected alternative**: committing `intel.db` back into the git repo on every scheduled
+    run instead of using Turso. Technically free and zero new services, but rejected — bloats
+    repo history with a binary file on every commit, and `git pull`-as-a-database is a hack a
+    real free-tier database avoids.
+
+- **Option B — single VPS/VPC** (planned, not started): one Linux box (e.g. Oracle Cloud's
+  free-forever VM) running everything — UI, SQLite file, and cron — much closer to the current
+  Mac setup (real crontab works fine on Linux, unlike macOS's TCC restriction hit earlier).
+  Trades Option A's near-zero ops burden for full ownership (patching, uptime, disk space) in
+  exchange for fewer new concepts to learn, since it mirrors the existing local architecture
+  almost exactly. User plans to build this one themselves as a separate exercise.
+
+- **Next session**: work through Option A step by step —
+  1. User creates Turso + Groq accounts, shares the DB URL/token and API key (config values,
+     not passwords/credentials Claude would enter).
+  2. Swap `storage/db.py` to talk to Turso over HTTP instead of local SQLite.
+  3. New `reasoning/llm.py` backend calling Groq instead of `codex exec`.
+  4. Add `.github/workflows/daily.yml` replacing `scripts/daily_run.sh` + the launchd plist.
+  5. User creates a Render account, deploys the repo as a web service, pastes in the Turso
+     env vars.

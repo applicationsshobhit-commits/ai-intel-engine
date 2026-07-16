@@ -72,6 +72,12 @@ considered rough — user flagged it needs more work).
 ✅ Phase 6a done — UI reachable from a phone on the same WiFi via the Mac's LAN IP
 (`http://<mac-local-ip>:8765`, server already binds to `0.0.0.0`). Breaks if the Mac
 sleeps, the UI process isn't running, or the LAN IP changes.
+🟡 Phase 6b planned, not started — two architectures decided (see decisions.md):
+**Option A** (building first): Render (UI) + Turso (DB, replaces local SQLite) + GitHub
+Actions (replaces launchd) + Groq API (replaces Codex, which can't run off-Mac). All free
+tier. **Option B** (later, user-built): single VPS (e.g. Oracle free VM), closer to the
+current architecture, more ops ownership. Next session: user creates Turso + Groq accounts
+and shares config (DB URL/token, API key), then Claude wires up the code changes.
 Anthropic ingestion still deferred to Phase 1.5 (needs headless-browser scraping).
-Next: Phase 6b (fully remote hosting), Phase 4 (entity timeline depth), clearing the
-remaining OpenAI backlog, or another UI pass since the current design isn't landing.
+Also open: Phase 4 (entity timeline depth), clearing the remaining OpenAI backlog, and
+another UI design pass since the current one isn't landing for the user.
