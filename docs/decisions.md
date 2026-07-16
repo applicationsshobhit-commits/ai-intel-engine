@@ -132,3 +132,16 @@ not every code change (that's what commit messages are for).
   group gets killed. Necessary before trusting this to run unattended.
 - **Verified**: `launchctl load` registered the job; `launchctl start` manually triggered it,
   confirmed via a fresh log file and a live `reasoning/run.py` process actually calling Codex.
+
+## 2026-07-16 — Restrict to this week's news, redesign UI
+- **Decision**: added `ingestion/item.is_this_week()` — parses both RFC822 (RSS `pubDate`) and
+  ISO 8601 (Atom/HN) date formats, keeps items with no parseable date rather than dropping them
+  silently. Applied at fetch time in `ingestion/run.py` (skip old items before insert) and again
+  in `ui/queries.py` (filter what's displayed), since the existing DB already had older backlog
+  items from before this filter existed — filtering only new fetches wouldn't have hidden those.
+  Google News queries' own `when:` window bumped from 3d to 7d to match.
+- **Verified**: OpenAI's RSS fetch dropped from 40 items/run to 8 "this week" after the filter;
+  feed now shows only July 2026 dates instead of mixing in 2016-era items.
+- **UI redesign**: reworked `ui/app.py` visual style — colored left-border accent per entity,
+  a small relevance bar (not just a percentage), warmer neutral palette, tighter type scale,
+  subtle card shadow. Verified in-browser at light and dark mode.

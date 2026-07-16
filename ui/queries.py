@@ -3,10 +3,15 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from ingestion.item import is_this_week
 from storage.db import get_connection
 
 
 MIN_RELEVANCE = 0.5
+
+
+def _this_week(rows):
+    return [r for r in rows if is_this_week(r)]
 
 
 def get_feed(limit: int = 50):
@@ -20,10 +25,10 @@ def get_feed(limit: int = 50):
            WHERE m.relevance_score >= ?
            ORDER BY m.relevance_score DESC, r.published_at DESC
            LIMIT ?""",
-        (MIN_RELEVANCE, limit),
+        (MIN_RELEVANCE, limit * 3),  # over-fetch since some get dropped by the recency filter
     ).fetchall()
     conn.close()
-    return [dict(r) for r in rows]
+    return _this_week([dict(r) for r in rows])[:limit]
 
 
 def get_entities():
@@ -44,7 +49,7 @@ def get_entity_timeline(entity_name: str, limit: int = 100):
            WHERE e.name = ? AND m.relevance_score >= ?
            ORDER BY r.published_at DESC
            LIMIT ?""",
-        (entity_name, MIN_RELEVANCE, limit),
+        (entity_name, MIN_RELEVANCE, limit * 3),
     ).fetchall()
     conn.close()
-    return [dict(r) for r in rows]
+    return _this_week([dict(r) for r in rows])[:limit]

@@ -35,57 +35,65 @@ PAGE_SHELL = """<!doctype html>
 <style>
   :root {{
     color-scheme: light dark;
-    --bg: #fafaf9; --surface: #ffffff; --border: #e5e3dd;
-    --text: #1c1b19; --text-dim: #6b6a64; --text-faint: #98968e;
+    --bg: #f6f5f2; --surface: #ffffff; --border: #e8e6e0; --border-soft: #efeee9;
+    --text: #171614; --text-dim: #5c5a54; --text-faint: #918f87;
+    --shadow: 0 1px 2px rgba(20,18,14,0.04), 0 1px 1px rgba(20,18,14,0.03);
   }}
   @media (prefers-color-scheme: dark) {{
     :root {{
-      --bg: #161513; --surface: #201f1c; --border: #34322d;
-      --text: #f0efec; --text-dim: #a8a69f; --text-faint: #75736c;
+      --bg: #121110; --surface: #1c1b19; --border: #302e2a; --border-soft: #262421;
+      --text: #f3f2ee; --text-dim: #b3b0a8; --text-faint: #6f6d66;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3);
     }}
   }}
   * {{ box-sizing: border-box; }}
   body {{
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    max-width: 760px; margin: 0 auto; padding: 24px 16px 60px;
+    max-width: 720px; margin: 0 auto; padding: 32px 18px 60px;
     background: var(--bg); color: var(--text); line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
   }}
-  header {{ margin-bottom: 18px; }}
-  h1 {{ font-size: 1.25rem; font-weight: 600; margin: 0 0 10px; letter-spacing: -0.01em; }}
-  nav {{ display: flex; flex-wrap: wrap; gap: 5px; }}
+  header {{ margin-bottom: 20px; }}
+  .brand {{ display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }}
+  h1 {{ font-size: 1.3rem; font-weight: 700; margin: 0; letter-spacing: -0.02em; }}
+  .tagline {{ font-size: 0.78rem; color: var(--text-faint); margin: 0 0 16px; }}
+  nav {{ display: flex; flex-wrap: wrap; gap: 6px; }}
   nav a {{
-    text-decoration: none; font-size: 0.78rem; padding: 4px 10px;
+    text-decoration: none; font-size: 0.78rem; font-weight: 500; padding: 5px 12px;
     border-radius: 999px; border: 1px solid var(--border); color: var(--text-dim);
-    white-space: nowrap;
+    white-space: nowrap; background: var(--surface); transition: border-color 0.15s;
   }}
   nav a.active {{ background: var(--text); color: var(--bg); border-color: var(--text); }}
-  h2.page-title {{ font-size: 1rem; font-weight: 600; margin: 4px 0 12px; }}
+  h2.page-title {{ font-size: 1.05rem; font-weight: 700; margin: 22px 0 12px; letter-spacing: -0.01em; }}
   .card {{
-    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
-    padding: 10px 14px; margin-bottom: 6px;
-    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    background: var(--surface); border: 1px solid var(--border-soft); border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 8px; box-shadow: var(--shadow);
+    border-left: 3px solid var(--accent, var(--border));
   }}
-  .card h3 {{ font-size: 0.88rem; font-weight: 600; margin: 0; line-height: 1.3; flex: 1 1 auto; min-width: 200px; }}
+  .card-top {{ display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }}
+  .card h3 {{ font-size: 0.92rem; font-weight: 600; margin: 0; line-height: 1.35; letter-spacing: -0.005em; }}
   .card h3 a {{ color: var(--text); text-decoration: none; }}
   .card h3 a:hover {{ text-decoration: underline; }}
-  .card-body {{ width: 100%; }}
-  .meta {{ display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-           font-size: 0.7rem; color: var(--text-faint); margin-top: 2px; }}
   .tag {{
-    display: inline-block; padding: 1px 8px; border-radius: 999px;
-    font-size: 0.68rem; font-weight: 600; flex-shrink: 0;
+    display: inline-block; padding: 2px 9px; border-radius: 999px;
+    font-size: 0.68rem; font-weight: 700; flex-shrink: 0; white-space: nowrap;
   }}
   .summary {{
-    font-size: 0.8rem; color: var(--text-dim); margin-top: 3px;
+    font-size: 0.82rem; color: var(--text-dim); margin-top: 4px;
     overflow: hidden; text-overflow: ellipsis; display: -webkit-box;
-    -webkit-line-clamp: 1; -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; -webkit-box-orient: vertical;
   }}
-  .empty {{ color: var(--text-faint); padding: 30px 0; text-align: center; font-size: 0.9rem; }}
+  .meta {{ display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+           font-size: 0.7rem; color: var(--text-faint); margin-top: 6px; }}
+  .score-bar {{ width: 34px; height: 4px; border-radius: 2px; background: var(--border-soft); overflow: hidden; }}
+  .score-bar span {{ display: block; height: 100%; background: var(--accent, var(--text-faint)); }}
+  .empty {{ color: var(--text-faint); padding: 40px 0; text-align: center; font-size: 0.9rem; }}
 </style>
 </head>
 <body>
 <header>
-  <h1>AI Intel Engine</h1>
+  <div class="brand"><h1>AI Intel Engine</h1></div>
+  <p class="tagline">What's moving this week, ranked by relevance</p>
   <nav>{nav}</nav>
 </header>
 {body}
@@ -103,25 +111,35 @@ def render_nav(entities, active=None):
 
 def render_card(item, show_entity=True):
     score = item.get("relevance_score")
-    score_pct = f"{round(score * 100)}%" if score is not None else ""
+    score_pct = round(score * 100) if score is not None else None
+    accent = "var(--text-faint)"
     entity_html = ""
     if show_entity and item.get("entity"):
         stroke, text_dark, fill = entity_color(item["entity"])
+        accent = stroke
         entity_html = (
             f'<span class="tag" style="background:{fill};color:{text_dark}">'
             f'{escape(item["entity"])}</span>'
         )
-    return f"""<div class="card">
-  <h3><a href="{escape(item['url'])}" target="_blank" rel="noopener">{escape(item['title'])}</a></h3>
-  {entity_html}
-  <div class="card-body">
-    <div class="summary">{escape(item.get('summary') or '')}</div>
-    <div class="meta">
-      <span>{escape(item['source'])}</span>
-      <span>·</span>
-      <span>{escape(item.get('published_at') or '')}</span>
-      {f'<span>· {score_pct}</span>' if score_pct else ''}
-    </div>
+
+    score_html = ""
+    if score_pct is not None:
+        score_html = (
+            f'<div class="score-bar"><span style="width:{score_pct}%"></span></div>'
+            f'<span>{score_pct}%</span>'
+        )
+
+    return f"""<div class="card" style="--accent:{accent}">
+  <div class="card-top">
+    <h3><a href="{escape(item['url'])}" target="_blank" rel="noopener">{escape(item['title'])}</a></h3>
+    {entity_html}
+  </div>
+  <div class="summary">{escape(item.get('summary') or '')}</div>
+  <div class="meta">
+    <span>{escape(item['source'])}</span>
+    <span>·</span>
+    <span>{escape(item.get('published_at') or '')}</span>
+    {score_html}
   </div>
 </div>"""
 
