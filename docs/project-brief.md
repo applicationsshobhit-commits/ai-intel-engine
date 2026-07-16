@@ -34,7 +34,14 @@ Building in phases, smallest usable slice first — not all layers at once.
 - **Phase 4 — Entities + timeline.** Add entity tracking, mentions table, timeline view.
 - **Phase 5 — Trend detection + Q&A chat.** The "connect the dots over time" layer,
   plus the chat interface.
-- **Later** — add remaining sources (Twitter/X, company sites, research), harden hosting.
+- **Phase 6a — Mobile access, same-WiFi.** Reach the UI from a phone with zero extra
+  infrastructure, by hitting the Mac's LAN IP directly. Only works while the Mac is on,
+  awake, and on the same network as the phone. Cheapest possible first step.
+- **Phase 6b — Mobile access, fully remote.** Reach the UI from anywhere (any network,
+  Mac asleep/off) via real hosting. Bigger lift: the ingestion/reasoning pipeline depends
+  on the local Codex login, so this needs either a data-sync step (Mac → host) or a
+  reasoning backend that isn't tied to the local machine.
+- **Later** — add remaining sources (Twitter/X, company sites, research).
 
 Rule of thumb: each phase should end with something runnable, not just code written.
 Document decisions in [decisions.md](decisions.md) as they're made, and commit at the
@@ -60,6 +67,11 @@ at the cost of higher per-item latency (variable, ~7-100s+).
 ✅ UI tightened for density/scanability — single-line clamped summaries, compact cards.
 ✅ Automated — `scripts/daily_run.sh` runs ingestion + reasoning (20 items) daily at 7am via
 a `launchd` user agent (not cron — blocked by macOS TCC restrictions). Logs to `logs/`.
+✅ Feed restricted to this week's news only, and the card UI was redesigned (still
+considered rough — user flagged it needs more work).
+✅ Phase 6a done — UI reachable from a phone on the same WiFi via the Mac's LAN IP
+(`http://<mac-local-ip>:8765`, server already binds to `0.0.0.0`). Breaks if the Mac
+sleeps, the UI process isn't running, or the LAN IP changes.
 Anthropic ingestion still deferred to Phase 1.5 (needs headless-browser scraping).
-Next: Phase 4 (entity timeline depth), clearing the remaining OpenAI backlog, or hosting
-the UI somewhere reachable from a phone (currently localhost-only).
+Next: Phase 6b (fully remote hosting), Phase 4 (entity timeline depth), clearing the
+remaining OpenAI backlog, or another UI pass since the current design isn't landing.

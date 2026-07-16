@@ -145,3 +145,21 @@ not every code change (that's what commit messages are for).
 - **UI redesign**: reworked `ui/app.py` visual style — colored left-border accent per entity,
   a small relevance bar (not just a percentage), warmer neutral palette, tighter type scale,
   subtle card shadow. Verified in-browser at light and dark mode.
+- **Note**: user says the UI still isn't landing visually despite this pass — flagged as a
+  known open item, not resolved. Another design iteration is expected later.
+
+## 2026-07-16 — Mobile access, split into two phases
+- **Decision**: split "host it for mobile" into Phase 6a (same-WiFi, LAN IP, no new
+  infrastructure) and Phase 6b (fully remote, any network, Mac can be off). Doing 6a first
+  since it's nearly free — `ui/app.py` already binds to `0.0.0.0`, so the only missing piece
+  was finding the Mac's LAN IP (`ipconfig getifaddr en0` → `192.168.1.126`) and confirming the
+  server actually answers on that address, not just `localhost`.
+- **Why split**: Phase 6b is a real jump in complexity — the reasoning pipeline depends on the
+  local Codex CLI login, so remote hosting needs either a data-sync step (Mac → host) or a
+  reasoning backend not tied to this machine. Not worth blocking mobile access on solving that
+  now when 6a covers "check the feed from my phone at home" today.
+- **Known limitations of 6a**: only works while the Mac is awake, `ui/app.py` is running, and
+  the phone is on the same WiFi; the LAN IP can change if the router reassigns it (DHCP).
+- **Decision**: kept the UI server manual (`python3 ui/app.py`, not auto-started via launchd)
+  per user preference — user wants to start it themselves when needed rather than have it
+  always running in the background.
