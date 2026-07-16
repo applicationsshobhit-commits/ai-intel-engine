@@ -58,5 +58,8 @@ Reasoning prompt tuned to lead summaries with competitive/investment/innovation 
 user's existing Codex login) — noticeably better entity discrimination and summary quality,
 at the cost of higher per-item latency (variable, ~7-100s+).
 ✅ UI tightened for density/scanability — single-line clamped summaries, compact cards.
+✅ Automated — `scripts/daily_run.sh` runs ingestion + reasoning (20 items) daily at 7am via
+a `launchd` user agent (not cron — blocked by macOS TCC restrictions). Logs to `logs/`.
 Anthropic ingestion still deferred to Phase 1.5 (needs headless-browser scraping).
-Next: Phase 4, entities + timeline depth, or scoring the remaining OpenAI backlog.
+Next: Phase 4 (entity timeline depth), clearing the remaining OpenAI backlog, or hosting
+the UI somewhere reachable from a phone (currently localhost-only).

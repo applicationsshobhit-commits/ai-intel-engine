@@ -113,3 +113,22 @@ not every code change (that's what commit messages are for).
 - **Result**: cleared the Salesforce-focused Google News backlog (53 total Salesforce mentions
   after this run), with summaries that read as real investment/competitive signal — analyst
   price targets, institutional stock holdings, competitor moves.
+
+## 2026-07-16 — Automate ingestion + reasoning (launchd)
+- **Decision**: added `scripts/daily_run.sh` (runs `ingestion/run.py` then
+  `reasoning/run.py --limit 20`, logs to `logs/`, keeps the last 30 log files) and scheduled
+  it daily at 7am via a `launchd` user agent
+  (`~/Library/LaunchAgents/com.aiintelengine.dailyrun.plist`).
+- **Why launchd, not cron**: `crontab -e` failed with `Operation not permitted` — macOS blocks
+  cron under TCC/Full Disk Access restrictions for sandboxed processes. `launchd` is the native
+  macOS scheduler and isn't subject to that restriction.
+- **Why limit 20/run**: Codex reasoning is slow and variable (~10-75s/item observed, one call
+  hung entirely). Capping each automated run at 20 items keeps it roughly bounded rather than
+  risking a run that never finishes; the backlog clears gradually over several days.
+- **Bug fixed while building this**: `reasoning/llm.py`'s `subprocess.run(timeout=120)` only
+  killed the direct `codex exec` child — `codex` spawns its own child processes, which survived
+  as orphans after a timeout (this is what caused the 22-minute hang seen earlier). Switched to
+  `subprocess.Popen(start_new_session=True)` + `os.killpg(...)` on timeout so the whole process
+  group gets killed. Necessary before trusting this to run unattended.
+- **Verified**: `launchctl load` registered the job; `launchctl start` manually triggered it,
+  confirmed via a fresh log file and a live `reasoning/run.py` process actually calling Codex.
